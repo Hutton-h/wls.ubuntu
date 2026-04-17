@@ -32,9 +32,6 @@ firewall=false
 dnsTunneling=true
 # 自动同步 Windows 的系统代理
 autoProxy=true
-# 通用优化：限制内存和 CPU，避免资源占用过高
-memory=4GB
-processors=2
 "@
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($global:WSL_CONFIG_PATH, $configContent, $utf8NoBom)
