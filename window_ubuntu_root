@@ -14,7 +14,7 @@ $global:WINDOWS_TERMINAL_SETTINGS = "$env:LOCALAPPDATA\Microsoft\Windows Termina
 # 清屏标题 完全保留
 Clear-Host
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "    WSL2 + Ubuntu 22.04 功能完整版【一键ROOT+文件访问】" -ForegroundColor Green
+Write-Host "    WSL2 + Ubuntu 22.04 功能完整版【一键ROOT+文件访问+Systemd】" -ForegroundColor Green
 Write-Host "     无乱码 | 零报错 | 原版逻辑不变 | 功能全保留" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Cyan
 
@@ -42,9 +42,9 @@ processors=2
     Write-Host "✅ 网络配置完成（已开启 Windows 代理共享）" -ForegroundColor Green
 }
 
-# ===================== 2. 核心：一键强制 ROOT+ 文件访问 =====================
+# ===================== 2. 核心：一键强制 ROOT+ 文件访问 + Systemd =====================
 function Invoke-OneClickRootAndAccess {
-    Write-Host "`n[执行] 正在一键设置永久 ROOT+ 文件访问权限..." -ForegroundColor Blue
+    Write-Host "`n[执行] 正在一键设置永久 ROOT+ 文件访问权限 + Systemd..." -ForegroundColor Blue
     wsl --shutdown
     Start-Sleep 2
 
@@ -57,7 +57,7 @@ function Invoke-OneClickRootAndAccess {
         }
     }
 
-    # 步骤 2：写入系统配置（ROOT+ 文件访问权限）
+    # 步骤 2：写入系统配置（ROOT+ 文件访问权限 + 开启 systemd）
     wsl -d $global:UBUNTU_NAME -u root bash -c @"
 cat > /etc/wsl.conf << 'EOF'
 [user]
@@ -69,6 +69,8 @@ options="metadata,umask=000,fmask=000,dmask=000"
 [network]
 generateHosts=true
 generateResolvConf=true
+[boot]
+systemd=true
 EOF
 # 修复乱码：强制设置 UTF-8 环境变量
 cat >> /etc/environment << 'EOF'
@@ -90,6 +92,7 @@ locale-gen en_US.UTF8 2>/dev/null || true
     Write-Host "✅ 当前默认用户：$user" -ForegroundColor Green
     Write-Host "✅ Windows 文件访问：\\wsl$\$global:UBUNTU_NAME" -ForegroundColor Green
     Write-Host "✅ 已开启 Windows 代理共享" -ForegroundColor Green
+    Write-Host "✅ Systemd 已配置（下次启动 WSL 自动生效）" -ForegroundColor Green
     Write-Host "✅ 启动命令：wsl" -ForegroundColor Green
 }
 
@@ -123,7 +126,7 @@ function Uninstall-Complete {
 function Show-Menu {
     Write-Host "`n请选择操作：" -ForegroundColor Yellow
     Write-Host "1. 安装 WSL2 + Ubuntu 22.04（标准安装）"
-    Write-Host "2. 一键强制 ROOT+ 文件访问（安装完成后使用）"
+    Write-Host "2. 一键强制 ROOT+ 文件访问 + Systemd（安装完成后使用）"
     Write-Host "3. 卸载 Ubuntu 22.04（彻底移除）"
     Write-Host "4. 退出"
     do {
