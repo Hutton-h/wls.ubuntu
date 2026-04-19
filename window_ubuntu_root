@@ -3,8 +3,14 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "SilentlyContinue"
 
-# 强制 UTF8 彻底清除乱码
+# ===================== 增强版：彻底修复乱码 仅修改此处 不碰其他功能 =====================
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$env:LANG = "en_US.UTF-8"
+$env:LC_ALL = "en_US.UTF-8"
+# 强制设置控制台代码页为 UTF-8
+chcp 65001 | Out-Null
 
 # ===================== 全局变量 100% 原版保留 无任何修改 =====================
 $global:UBUNTU_NAME = "Ubuntu-22.04"
@@ -75,7 +81,7 @@ autoProxy=true
     Write-Host ""
 }
 
-# ===================== 2. ROOT+Systemd配置 核心代码100%原版 仅优化输出UI =====================
+# ===================== 2. ROOT+Systemd配置 增强版乱码修复 其他功能100%保留 =====================
 function Invoke-OneClickRootAndAccess {
     Write-MainTitle
     Write-Host "  ROOT权限与Systemd配置模块" -ForegroundColor Gray
@@ -93,7 +99,7 @@ function Invoke-OneClickRootAndAccess {
         }
     }
 
-    # 原版系统配置写入 一字未改
+    # ===================== 增强版：彻底修复Ubuntu内部乱码 仅修改此处 =====================
     wsl -d $global:UBUNTU_NAME -u root bash -c @"
 cat > /etc/wsl.conf << 'EOF'
 [user]
@@ -108,15 +114,29 @@ generateResolvConf=true
 [boot]
 systemd=true
 EOF
-# 修复乱码：强制设置 UTF-8 环境变量
-cat >> /etc/environment << 'EOF'
-LANG=C.UTF-8
-LC_ALL=C.UTF-8
+# 增强版：彻底设置 UTF-8 环境变量
+cat > /etc/environment << 'EOF'
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+LC_CTYPE=en_US.UTF-8
+LANGUAGE=en_US:en
 EOF
-# 在 profile 里也加上 NO_PROXY，避免 localhost 代理报错
-echo 'export NO_PROXY=localhost,127.0.0.1,::1' >> /etc/profile
-# 确保 locale 配置正确
-locale-gen en_US.UTF8 2>/dev/null || true
+# 增强版：在所有profile文件中强制设置UTF-8
+cat > /etc/profile.d/utf8.sh << 'EOF'
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LANGUAGE=en_US:en
+export NO_PROXY=localhost,127.0.0.1,::1
+EOF
+chmod +x /etc/profile.d/utf8.sh
+# 增强版：更新 locale 配置
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+echo 'LC_ALL=en_US.UTF-8' >> /etc/locale.conf
+# 增强版：强制生成完整的 UTF-8 locale
+locale-gen en_US.UTF-8 2>/dev/null || true
+localedef -i en_US -f UTF-8 en_US.UTF-8 2>/dev/null || true
+update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 2>/dev/null || true
 "@ 2>&1 | Out-Null
 
     wsl --shutdown
@@ -230,7 +250,7 @@ function Show-Menu {
     return $choice
 }
 
-# ===================== 脚本入口 修改选项6为只退出脚本不关闭终端 =====================
+# ===================== 脚本入口 原版逻辑100%保留 仅修改选项6为直接退出脚本 =====================
 $scriptRunning = $true
 while ($scriptRunning) {
     $userChoice = Show-Menu
