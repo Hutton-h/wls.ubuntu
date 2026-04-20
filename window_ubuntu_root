@@ -73,6 +73,10 @@ firewall=false
 dnsTunneling=true
 # 自动同步 Windows 的系统代理
 autoProxy=true
+memory=8GB
+processors=4
+swap=2GB
+autoMemoryReclaim=disabled
 "@
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($global:WSL_CONFIG_PATH, $configContent, $utf8NoBom)
