@@ -65,18 +65,21 @@ function Config-WSLNetwork {
     # 原版核心配置 一字未改
     $configContent = @"
 [wsl2]
-# 开启镜像网络模式，和 Windows 共享网络栈
-networkingMode=mirrored
-# 关闭 WSL 自带防火墙，避免拦截
-firewall=false
-# 开启 DNS 隧道，解决域名解析问题
-dnsTunneling=true
-# 自动同步 Windows 的系统代理
-autoProxy=true
-memory=8GB
-processors=4
-swap=2GB
-autoMemoryReclaim=disabled
+ memory=16GB                # 分配给WSL的最大内存（根据你的电脑调整）
+ processors=8               # 分配给WSL的CPU核心数
+ swap=4GB                   # 交换空间大小
+ localhostForwarding=true   # 允许localhost端口转发
+ vmIdleTimeout=60000        # 空闲60秒后关闭虚拟机（单位：毫秒）
+
+ [experimental]
+ autoMemoryReclaim=gradual  # 渐进式内存回收（推荐）
+ # autoMemoryReclaim=dropCache  # 立即回收所有缓存内存
+ # autoMemoryReclaim=disabled   # 禁用自动内存回收
+ networkingMode=mirrored    # 镜像网络模式（解决大部分网络问题）
+ dnsTunneling=true          # DNS隧道
+ firewall=false              # 启用WSL防火墙
+ autoProxy=true             # 自动同步Windows代理
+ sparseVhd=true             # 自动压缩虚拟硬盘
 "@
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($global:WSL_CONFIG_PATH, $configContent, $utf8NoBom)
