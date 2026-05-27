@@ -70,7 +70,6 @@ function Config-WSLNetwork {
  swap=24GB                   # 交换空间大小
  gpuSupport=true             # 启用 GPU 加速
  pageReporting=false        # 关闭自动内存回收（避免大模型运行时内存被释放）
- localhostForwarding=true   # 允许localhost端口转发
  nestedVirtualization=true  # 启用嵌套虚拟化（可选，如果你需要在 WSL2 里跑 Docker）
  vmIdleTimeout=60000        # 空闲60秒后关闭虚拟机（单位：毫秒）
 
